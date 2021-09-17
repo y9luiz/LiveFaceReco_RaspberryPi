@@ -19,7 +19,6 @@
 #include <algorithm>
 
 #define PI 3.14159265
-
 using namespace std;
 
 double sum_score, sum_fps,sum_confidence;
@@ -46,11 +45,7 @@ std::vector<std::string> split(const std::string& s, char seperator)
 
 void calculateFaceDescriptorsFromDisk(Arcface & facereco,std::map<std::string,cv::Mat> & face_descriptors_map)
 {
-    #ifdef PROJECT_PATH
-        const std::string project_path = PROJECT_PATH;
-    #else
-        const std::string project_path = ".";
-    #endif
+    const std::string project_path = PROJECT_PATH;
     std::string pattern_jpg = project_path + "/img/*.jpg";
 	std::vector<cv::String> image_names;
     
@@ -149,6 +144,8 @@ Bbox  getLargestBboxFromBboxVec(const std::vector<Bbox> & faces_info)
 {
     if(faces_info.size()>0)
     {
+        std::cout <<"total de faces" <<faces_info.size() << "\n";
+
         int lagerest_face=0,largest_number=0;
         for (int i = 0; i < faces_info.size(); i++){
             int y_ = (int) faces_info[i].y2 * ratio_y;
@@ -267,6 +264,7 @@ std::string  getClosestFaceDescriptorPersonName(std::map<std::string,std::list<c
     return person_name;
 }
 
+
 int MTCNNDetection()
 {
     //OpenCV Version
@@ -275,10 +273,11 @@ int MTCNNDetection()
     << CV_SUBMINOR_VERSION << endl;
 
     Arcface facereco;
+
+    // load the dataset and store it inside a dictionary
     #ifdef PROJECT_PATH
         const std::string project_path = PROJECT_PATH;
     #endif
-    // load the dataset and store it inside a dictionary
     ImageDatasetHandler img_dataset_handler(project_path + "/imgs/");
     std::map<std::string,std::list<cv::Mat>> dataset_imgs = img_dataset_handler.getDatasetMap();
 
@@ -387,5 +386,43 @@ int MTCNNDetection()
         count ++;
     }
     cap.stopCapture();
+    return 0;
+}
+
+int main(int argc, char ** argv)
+{
+    if(argc != 2)
+    {
+        std::cout << "usage ./test_img img_name\n";
+        return -1;
+    }
+    std::string img_path = argv[1];
+    cv::Mat frame;
+    frame = cv::imread(img_path);
+    Live live;
+    loadLiveModel(live);
+
+    float factor = 0.709f;
+    float threshold[3] = {0.7f, 0.6f, 0.6f};
+
+      //detect faces
+    std::vector<Bbox> faces_info = detect_mtcnn(frame); 
+    if(faces_info.size()>=1)
+    {
+
+        auto large_box = getLargestBboxFromBboxVec(faces_info);
+
+        LiveFaceBox live_face_box = Bbox2LiveFaceBox(large_box);
+
+        double confidence = live.Detect(frame,live_face_box);
+
+        std::cout << confidence <<"\n";
+        cv::rectangle(frame, Point(large_box.x1, large_box.y1), Point(large_box.x2,large_box.y2), cv::Scalar(0, 255, 0), 2);
+
+    }
+       
+    cv::imshow("img", frame);
+    cv::waitKey(1000*50);
+
     return 0;
 }

@@ -2,6 +2,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.6)
 
 PROJECT(LiveFaceReco)
 
+add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
+
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 find_package(OpenCV REQUIRED)
@@ -53,6 +55,12 @@ endif()
 
 ADD_EXECUTABLE(LiveFaceReco src/main.cpp)
 
+
 TARGET_LINK_LIBRARIES(LiveFaceReco ${OpenCV_LIBS}  facedetect ncnn ParallelVideoCapture pthread)
 TARGET_LINK_LIBRARIES(facedetect ${OpenCV_LIBS} ncnn)
 TARGET_INCLUDE_DIRECTORIES(LiveFaceReco PRIVATE ${OpenCV_INCLUDE_DIRS})
+
+ADD_EXECUTABLE(test_img src/test_img.cpp)
+TARGET_LINK_LIBRARIES(test_img ${OpenCV_LIBS}  facedetect ncnn ParallelVideoCapture pthread)
+TARGET_LINK_LIBRARIES(test_img ${OpenCV_LIBS} ncnn)
+TARGET_INCLUDE_DIRECTORIES(test_img PRIVATE ${OpenCV_INCLUDE_DIRS})

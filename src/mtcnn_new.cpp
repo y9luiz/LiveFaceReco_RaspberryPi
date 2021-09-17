@@ -12,6 +12,9 @@ bool cmpScore(orderScore lsh, orderScore rsh){
 }
 
 mtcnn::mtcnn(){
+    #ifdef PROJECT_PATH
+        const std::string project_path = PROJECT_PATH;
+    #endif
     std::string param1=  project_path+"/models/mtcnn/det1.param";
     std::string model1 = project_path+"/models/mtcnn/det1.bin";
     std::string param2=  project_path+"/models/mtcnn/det2.param";

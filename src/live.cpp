@@ -5,7 +5,7 @@
 #include "live.h"
 #include "livefacereco.hpp"
 //#include<ctime>
-//#include <iostream>
+#include <iostream>
 using namespace std;
 Live::Live() {
     thread_num_ = 2;
@@ -28,6 +28,9 @@ void Live::LoadModel(std::vector<ModelConfig> &configs) {
     model_num_ = static_cast<int>(configs_.size());
     for (int i = 0; i < model_num_; ++i) {
         ncnn::Net *net = new ncnn::Net();
+        #ifdef PROJECT_PATH
+            const std::string project_path = PROJECT_PATH;
+        #endif
         std::string param=  project_path+"/models/live/" + configs_[i].name + ".param";
         std::string model = project_path+"/models/live/"  + configs_[i].name + ".bin";
         net->load_param(param.c_str());
@@ -40,15 +43,15 @@ void Live::LoadModel(std::vector<ModelConfig> &configs) {
 
 float Live::Detect(cv::Mat &src, LiveFaceBox &box) {
     float confidence = 0.f;//score
-      clock_t start,finsih;
+    clock_t start,finsih;
     
     for (int i = 0; i < model_num_; i++) {
         cv::Mat roi;
         if(configs_[i].org_resize) {
-
             cv::resize(src, roi,cv::Size(80,80), 0, 0,3);
 
         } else {
+
             cv::Rect rect = CalculateBox(box, src.cols, src.rows, configs_[i]);
 
             cv::resize(src(rect), roi, cv::Size(configs_[i].width, configs_[i].height));
@@ -64,9 +67,7 @@ float Live::Detect(cv::Mat &src, LiveFaceBox &box) {
         extractor.input(net_input_name_.c_str(), in);
         ncnn::Mat out;
         extractor.extract(net_output_name_.c_str(), out);
-
         confidence += out.row(0)[1];
-       
     }
     confidence /= model_num_;
 
@@ -80,7 +81,6 @@ cv::Rect Live::CalculateBox(LiveFaceBox &box, int w, int h, ModelConfig &config)
 
     int shift_x = static_cast<int>(box_width * config.shift_x);
     int shift_y = static_cast<int>(box_height * config.shift_y);
-
     float scale = std::min(
             config.scale,
             std::min((w - 1) / (float) box_width, (h - 1) / (float) box_height)

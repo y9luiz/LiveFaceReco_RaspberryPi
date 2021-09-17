@@ -14,6 +14,9 @@ ncnn::Mat bgr2rgb(ncnn::Mat src)
 
 Arcface::Arcface(string model_folder)
 {
+    #ifdef PROJECT_PATH
+        const std::string project_path = PROJECT_PATH;
+    #endif
     string param_file = project_path+"/models/mobilefacenet/mobilefacenet.param";
     string bin_file = project_path+"/models/mobilefacenet/mobilefacenet.bin";
 

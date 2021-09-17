@@ -33,7 +33,6 @@ const int input_width = 320;
 const int input_height = 240;
 const int output_width = 320;
 const int output_height = 240;
-const string project_path="/home/luiz/Faculdade/TCC/LiveFaceReco_RaspberryPi";
 //end
 
 const cv::Size frame_size = Size(output_width,output_height);

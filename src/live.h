@@ -37,7 +37,6 @@ public:
 private:
     cv::Rect CalculateBox(LiveFaceBox &box, int w, int h, ModelConfig &config);
 
-private:
     std::vector<ncnn::Net *> nets_;
     std::vector<ModelConfig> configs_;
     const std::string net_input_name_ = "data";
